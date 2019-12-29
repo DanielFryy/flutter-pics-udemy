@@ -1,5 +1,9 @@
 // Import flutter helper library
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' show get;
+import 'models/image_model.dart';
+import 'dart:convert';
+import 'widgets/image_list.dart';
 
 class App extends StatefulWidget {
   createState() => AppState();
@@ -8,17 +12,24 @@ class App extends StatefulWidget {
 // Create a class that will be our custom widget. This class must extend the 'StatelessWidget' base class
 class AppState extends State<App> {
   int counter = 0;
+  List<ImageModel> images = [];
+
+  void fetchImage() async {
+    counter++;
+    final response = await get('https://jsonplaceholder.typicode.com/photos/$counter');
+    final imageModel = ImageModel.fromJson(json.decode(response.body));
+    setState(() {
+      images.add(imageModel);
+    });
+  }
+
   // Must define a 'build' method that returns the widgets that *this* widget will show
   Widget build(context) => MaterialApp(
         home: Scaffold(
-          body: Text('$counter'),
+          body: ImageList(images),
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
-            onPressed: () {
-              setState(() {
-                counter++;
-              });
-            },
+            onPressed: fetchImage,
           ),
           appBar: AppBar(
             title: Text('Let\'s see some images'),
